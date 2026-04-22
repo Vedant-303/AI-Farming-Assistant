@@ -1,0 +1,20 @@
+# --- Backend / Production API Dependencies ---
+fastapi
+uvicorn
+pydantic
+python-multipart
+httpx
+
+# --- Machine Learning / Data Processing ---
+numpy
+pandas
+scikit-learn
+Pillow
+
+# --- Computer Vision / Deep Learning ---
+tensorflow
+
+# --- Research & Notebook Environments (For ML_Training/) ---
+jupyter
+matplotlib
+seaborn
