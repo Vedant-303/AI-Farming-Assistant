@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { predictFertilizer } from '../services/api';
-import { Sprout, Loader2 } from 'lucide-react';
+import { predictFertilizer, getFarmStatus, updateFarmStatus } from '../services/api';
+import { Sprout, Loader2, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const availableCropTypes = [
     'Maize', 'Sugarcane', 'Cotton', 'Tobacco', 'Paddy', 'Barley', 'Wheat',
@@ -26,6 +27,8 @@ const FertilizerRecommendation = () => {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
+    const [saving, setSaving] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -56,6 +59,29 @@ const FertilizerRecommendation = () => {
             setError(err.detail || "Failed to get recommendation");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleApplyFertilizer = async () => {
+        setSaving(true);
+        try {
+            const status = await getFarmStatus();
+            if (!status.active) {
+                setError("No active crop found on dashboard. Please recommend and start a crop first.");
+                return;
+            }
+            
+            await updateFarmStatus({
+                crop_name: status.crop_name,
+                date_planted: status.date_planted,
+                status: "Growing",
+                next_step: `Apply ${result} fertilizer`
+            });
+            navigate('/dashboard');
+        } catch (err) {
+            setError("Failed to update dashboard: " + (err.detail || "Unknown error"));
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -138,6 +164,14 @@ const FertilizerRecommendation = () => {
                         <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary-color)', textTransform: 'capitalize' }}>
                             {result}
                         </div>
+                        <button 
+                            onClick={handleApplyFertilizer} 
+                            disabled={saving}
+                            className="btn btn-secondary" 
+                            style={{ marginTop: '20px', width: '100%', justifyContent: 'center' }}
+                        >
+                            {saving ? <Loader2 className="animate-spin" /> : <><CheckCircle size={18} /> Apply to Farm Dashboard</>}
+                        </button>
                     </div>
                 )}
             </div>

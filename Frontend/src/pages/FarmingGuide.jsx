@@ -3,85 +3,55 @@ import { BookOpen, Droplets, Leaf, Shield, Tractor, ChevronRight, CheckCircle2 }
 
 const guideTopics = [
     {
-        id: 'soil',
-        title: 'Soil Preparation & Management',
+        id: 'recommendation',
+        title: 'Step 1: Get Recommendations',
         icon: <Leaf size={24} />,
         content: (
             <div className="guide-content-section animate-fade-in">
-                <h2>Building Healthy Soil</h2>
-                <p>Soil is the foundation of a successful harvest. Managing soil health involves understanding its structure, pH, and nutrient composition.</p>
+                <h2>Finding the Perfect Crop</h2>
+                <p>Start your journey by heading to the <strong>Crop Recommendation</strong> tool. Input your soil parameters (N, P, K levels), soil pH, and local weather conditions.</p>
                 
-                <h3>Key Practices:</h3>
+                <h3>Procedures:</h3>
                 <ul className="guide-list">
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Testing:</strong> Regularly test your soil to monitor NPK (Nitrogen, Phosphorus, Potassium) levels and pH.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Organic Matter:</strong> Incorporate compost, manure, or cover crops to improve soil structure and water retention.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Tillage:</strong> Use minimum or no-till farming where possible to prevent soil erosion and preserve beneficial microorganisms.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Crop Rotation:</strong> Rotate crops belonging to different families to prevent nutrient depletion.</span></li>
+                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Enter Data:</strong> Fill in the soil nutrients and environmental factors.</span></li>
+                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Analyze:</strong> Click "Predict Best Crop" to let our AI find the most suitable crop for your land.</span></li>
+                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Start Planting:</strong> Once you get a result, click the <strong>"Start Planting"</strong> button to add it to your live Dashboard.</span></li>
                 </ul>
-                
-                <div className="guide-tip-box mt-4">
-                    <strong>Pro Tip:</strong> Legumes like peas and beans naturally fix atmospheric nitrogen into the soil, reducing the need for synthetic nitrogen fertilizers!
-                </div>
             </div>
         )
     },
     {
-        id: 'sowing',
-        title: 'Crop Selection & Sowing',
+        id: 'dashboard',
+        title: 'Step 2: Manage Your Farm',
         icon: <Tractor size={24} />,
         content: (
             <div className="guide-content-section animate-fade-in">
-                <h2>Planting for Success</h2>
-                <p>Choosing the right crop for your specific location and planting it correctly is critical for optimal yield.</p>
+                <h2>Your Live Dashboard</h2>
+                <p>The <strong>Dashboard</strong> is your central hub for tracking your farm's status and history.</p>
                 
-                <h3>Key Practices:</h3>
+                <h3>Features:</h3>
                 <ul className="guide-list">
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Climate Matching:</strong> Select crop varieties bred for your local climate to ensure resistance to local stresses.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Seed Quality:</strong> Always use certified, disease-free seeds with high germination rates.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Spacing:</strong> Adhere to recommended plant spacing to avoid competition for sunlight and nutrients.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Timing:</strong> Plant at the right time. Our AI Models can help you determine the best crop based on current seasonal conditions.</span></li>
+                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Current Activity:</strong> View your active crop, planting date, and growth progress.</span></li>
+                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Next Steps:</strong> Check the "Next Recommended Step" to know exactly what your farm needs right now.</span></li>
+                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>History:</strong> Revisit all your previous AI insights in the Timeline section.</span></li>
                 </ul>
             </div>
         )
     },
     {
-        id: 'irrigation',
-        title: 'Irrigation Strategies',
-        icon: <Droplets size={24} />,
-        content: (
-            <div className="guide-content-section animate-fade-in">
-                <h2>Efficient Water Management</h2>
-                <p>Water is a precious resource. Efficient irrigation ensures plants get exactly what they need without wastage.</p>
-                
-                <h3>Key Practices:</h3>
-                <ul className="guide-list">
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Drip Irrigation:</strong> Highly efficient for row crops and orchards, delivering water directly to the root zone.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Scheduling:</strong> Water during cooler parts of the day (early morning or late evening) to minimize evaporation.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Mulching:</strong> Apply organic mulch to the soil surface to conserve moisture and suppress weeds.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Monitoring:</strong> Use soil moisture sensors rather than visual guessing to determine when to water.</span></li>
-                </ul>
-                
-                <div className="guide-tip-box mt-4" style={{ background: '#e3f2fd', borderLeftColor: '#1976d2', color: '#1565c0' }}>
-                    <strong>Did you know?</strong> Overwatering can be just as harmful as underwatering, often leading to root rot and increased fungal diseases.
-                </div>
-            </div>
-        )
-    },
-    {
-        id: 'pest',
-        title: 'Pest & Disease Control',
+        id: 'maintenance',
+        title: 'Step 3: AI Maintenance',
         icon: <Shield size={24} />,
         content: (
             <div className="guide-content-section animate-fade-in">
-                <h2>Protecting Your Harvest</h2>
-                <p>Integrated Pest Management (IPM) is the most sustainable way to keep diseases and pests at bay.</p>
+                <h2>Keep Your Crops Healthy</h2>
+                <p>Use our specialized AI tools to maintain optimal health throughout the growing season.</p>
                 
-                <h3>Key Practices:</h3>
+                <h3>Key Tools:</h3>
                 <ul className="guide-list">
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Early Detection:</strong> Routinely scout your fields. Use our Disease Identification tool at the first sign of leaf spots or discoloration.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Biocontrol:</strong> Encourage natural predators like ladybugs or use safe biopesticides like Neem oil before resorting to harsh chemicals.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Sanitation:</strong> Remove and destroy infected plant debris to prevent the spread of fungal spores.</span></li>
-                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Resistant Varieties:</strong> Plant cultivars that are genetically resistant to common local diseases.</span></li>
+                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Fertilizer Advice:</strong> Run the Fertilizer tool to get tailored nutrient recommendations. Click <strong>"Apply to Dashboard"</strong> to update your farm's schedule.</span></li>
+                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Disease ID:</strong> Upload a photo of any suspicious leaf spots to identify diseases instantly and get treatment tips.</span></li>
+                    <li><CheckCircle2 size={18} color="var(--primary-color)" /> <span><strong>Weather Sync:</strong> Stay ahead of storms or droughts with the real-time weather forecast.</span></li>
                 </ul>
             </div>
         )
@@ -95,9 +65,9 @@ const FarmingGuide = () => {
         <div className="container section animate-fade-in pb-8">
             <div className="text-center" style={{ marginBottom: '40px' }}>
                 <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                    <BookOpen color="var(--primary-color)" size={36} /> Smart Farming Guide
+                    <BookOpen color="var(--primary-color)" size={36} /> How to Use AgriSens
                 </h1>
-                <p className="hero-subtitle">Comprehensive best-practices for sustainable and highly-productive agriculture.</p>
+                <p className="hero-subtitle">A quick guide to mastering your AI-powered farm management dashboard.</p>
             </div>
 
             <div className="guide-layout">

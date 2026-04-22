@@ -88,7 +88,22 @@ const WeatherForecast = () => {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
-                    setLocationName(`Lat: ${latitude.toFixed(2)}, Lon: ${longitude.toFixed(2)}`);
+                    // Fetch city name from backend
+                    fetch(`http://localhost:8000/api/reverse-geocode?lat=${latitude}&lon=${longitude}`)
+                        .then(res => {
+                            if (!res.ok) throw new Error('Geocode failed');
+                            return res.json();
+                        })
+                        .then(geoData => {
+                            if (geoData.display_name) {
+                                setLocationName(geoData.display_name);
+                            } else {
+                                setLocationName(`Lat: ${latitude.toFixed(2)}, Lon: ${longitude.toFixed(2)}`);
+                            }
+                        })
+                        .catch(() => {
+                            setLocationName(`Lat: ${latitude.toFixed(2)}, Lon: ${longitude.toFixed(2)}`);
+                        });
                     fetchWeather(latitude, longitude);
                 },
                 (err) => {

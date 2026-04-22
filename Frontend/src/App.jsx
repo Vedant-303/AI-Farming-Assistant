@@ -9,6 +9,7 @@ import WeatherForecast from './pages/WeatherForecast';
 import FertilizerRecommendation from './pages/FertilizerRecommendation';
 import FarmingGuide from './pages/FarmingGuide';
 import AboutUs from './pages/AboutUs';
+import Dashboard from './pages/Dashboard';
 import AboutSection from './components/AboutSection';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
             <Route path="/identify-disease" element={<DiseaseIdentification />} />
             <Route path="/recommend-fertilizer" element={<FertilizerRecommendation />} />
             <Route path="/weather" element={<WeatherForecast />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </main>
 

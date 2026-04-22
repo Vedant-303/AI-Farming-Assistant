@@ -7,6 +7,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from io import BytesIO
 from PIL import Image
+from datetime import datetime
+import json
+from database import database, engine, metadata
+from models import farm_status, recommendation_history
+import httpx
 
 try:
     import tensorflow as tf
@@ -25,6 +30,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def startup():
+    # Create tables
+    metadata.create_all(engine)
+    await database.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()
 
 # Load Models
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "models")
@@ -111,7 +126,7 @@ def read_root():
     return {"message": "Welcome to AgriSens API"}
 
 @app.post("/api/predict/crop")
-def predict_crop(req: CropRequest):
+async def predict_crop(req: CropRequest):
     try:
         if crop_model is None:
             # Deterministic mock based on input values
@@ -124,12 +139,14 @@ def predict_crop(req: CropRequest):
         features = np.array([[req.nitrogen, req.phosphorus, req.potassium, 
                               req.temperature, req.humidity, req.ph, req.rainfall]])
         prediction = crop_model.predict(features)
-        return {"recommended_crop": prediction[0]}
+        res = {"recommended_crop": prediction[0]}
+        await log_recommendation("Crop", res["recommended_crop"], req.dict())
+        return res
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/predict/fertilizer")
-def predict_fertilizer(req: FertilizerRequest):
+async def predict_fertilizer(req: FertilizerRequest):
     try:
         if fertilizer_model is None or fertilizer_soil_enc is None or fertilizer_crop_enc is None:
             # Deterministic mock based on input values
@@ -157,7 +174,9 @@ def predict_fertilizer(req: FertilizerRequest):
         features = np.array([[req.temperature, req.humidity, req.moisture, 
                              soil_encoded, crop_encoded, req.nitrogen, req.potassium, req.phosphorus]])
         prediction = fertilizer_model.predict(features)
-        return {"recommended_fertilizer": str(prediction[0])}
+        res = {"recommended_fertilizer": str(prediction[0])}
+        await log_recommendation("Fertilizer", res["recommended_fertilizer"], req.dict())
+        return res
     except HTTPException:
         raise
     except Exception as e:
@@ -195,7 +214,9 @@ async def predict_disease(file: UploadFile = File(...)):
         predictions = disease_model.predict(input_arr)
         result_index = np.argmax(predictions)
         
-        return {"disease_class": DISEASE_CLASSES[result_index], "confidence": float(predictions[0][result_index])}
+        res = {"disease_class": DISEASE_CLASSES[result_index], "confidence": float(predictions[0][result_index])}
+        await log_recommendation("Disease", res["disease_class"], {"filename": file.filename})
+        return res
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -250,3 +271,85 @@ async def get_coordinates(query: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/reverse-geocode")
+async def reverse_geocode(lat: float, lon: float):
+    # Use BigDataCloud's free reverse geocoding API
+    url = f"https://api.bigdatacloud.net/data/reverse-geocode-client?latitude={lat}&longitude={lon}&localityLanguage=en"
+    
+    try:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            response = await client.get(url, timeout=10.0)
+            response.raise_for_status()
+            data = response.json()
+            
+            city = data.get("city") or data.get("locality") or "Unknown Location"
+            state = data.get("principalSubdivision", "")
+            country = data.get("countryName", "")
+            
+            display_name = f"{city}, {state}, {country}" if state else f"{city}, {country}"
+            return {"display_name": display_name}
+                
+    except Exception as e:
+        # Fallback to coordinates if geocoding fails
+        return {"display_name": f"Lat: {lat:.2f}, Lon: {lon:.2f}"}
+
+# --- Dashboard & Farm History Endpoints ---
+
+class FarmStatusUpdate(BaseModel):
+    crop_name: str
+    date_planted: str = None
+    status: str = "Growing"
+    next_step: str = "Monitor growth"
+
+@app.get("/api/farm/status")
+async def get_farm_status():
+    query = farm_status.select()
+    res = await database.fetch_one(query)
+    if not res:
+        return {"active": False}
+    return {**res, "active": True}
+
+@app.post("/api/farm/status")
+async def update_farm_status(req: FarmStatusUpdate):
+    # Clear existing status (only allow one active crop for simplicity in this demo)
+    await database.execute(farm_status.delete())
+    
+    date_p = req.date_planted if req.date_planted else datetime.now().strftime("%Y-%m-%d")
+    
+    query = farm_status.insert().values(
+        crop_name=req.crop_name,
+        date_planted=date_p,
+        status=req.status,
+        next_step=req.next_step,
+        last_updated=datetime.now().strftime("%Y-%m-%d %H:%M")
+    )
+    await database.execute(query)
+    return {"message": "Farm status updated"}
+
+@app.delete("/api/farm/status")
+async def reset_farm_status():
+    await database.execute(farm_status.delete())
+    return {"message": "Farm status reset"}
+
+@app.get("/api/farm/recommendations")
+async def get_recommendation_history():
+    query = recommendation_history.select().order_by(recommendation_history.c.id.desc()).limit(10)
+    res = await database.fetch_all(query)
+    return res
+
+async def log_recommendation(type: str, result: str, input_data: dict):
+    query = recommendation_history.insert().values(
+        type=type,
+        result=result,
+        timestamp=datetime.now().strftime("%Y-%m-%d %H:%M"),
+        input_data=json.dumps(input_data)
+    )
+    await database.execute(query)
+
+# Intercept existing predict endpoints to log them
+@app.post("/api/predict/crop/v2")
+async def predict_crop_v2(req: CropRequest):
+    res = await predict_crop(req)
+    # log_recommendation is already called inside predict_crop
+    return res

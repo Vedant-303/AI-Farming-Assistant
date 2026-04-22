@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { predictCrop } from '../services/api';
-import { Sprout, Loader2 } from 'lucide-react';
+import { predictCrop, updateFarmStatus } from '../services/api';
+import { Sprout, Loader2, Play } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const CropRecommendation = () => {
     const [formData, setFormData] = useState({
@@ -16,6 +17,8 @@ const CropRecommendation = () => {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
+    const [saving, setSaving] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -45,6 +48,22 @@ const CropRecommendation = () => {
             setError(err.detail || "Failed to get recommendation");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleStartPlanting = async () => {
+        setSaving(true);
+        try {
+            await updateFarmStatus({
+                crop_name: result,
+                status: "Growing",
+                next_step: "Monitor soil moisture"
+            });
+            navigate('/dashboard');
+        } catch (err) {
+            setError("Failed to start planting: " + (err.detail || "Unknown error"));
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -114,6 +133,14 @@ const CropRecommendation = () => {
                         <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary-color)', textTransform: 'capitalize' }}>
                             {result}
                         </div>
+                        <button 
+                            onClick={handleStartPlanting} 
+                            disabled={saving}
+                            className="btn btn-secondary" 
+                            style={{ marginTop: '20px', width: '100%', justifyContent: 'center' }}
+                        >
+                            {saving ? <Loader2 className="animate-spin" /> : <><Play size={18} /> Start Planting this Crop</>}
+                        </button>
                     </div>
                 )}
             </div>

@@ -12,8 +12,9 @@ const Navbar = () => {
                 </Link>
                 <nav className="nav-links">
                     <Link to="/" className="nav-link">Home</Link>
+                    <Link to="/dashboard" className="nav-link">Dashboard</Link>
                     <Link to="/features" className="nav-link">Features</Link>
-                    <Link to="/guide" className="nav-link">Farming Guide</Link>
+                    <Link to="/guide" className="nav-link">How to Use</Link>
                     <Link to="/about" className="nav-link">About Us</Link>
                 </nav>
                 <button className="mobile-menu-btn">
